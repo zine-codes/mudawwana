@@ -1,0 +1,157 @@
+---
+import { getCollection, render } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import ArticleCard from '../../components/ArticleCard.astro';
+import { site } from '../../data/site';
+import { categoryLabel } from '../../data/categories';
+
+export async function getStaticPaths() {
+  const articles = await getCollection('articles');
+  return articles.map((a) => ({
+    params: { category: a.data.category, slug: a.id },
+    props: { article: a },
+  }));
+}
+
+const { article } = Astro.props;
+const { Content } = await render(article);
+const { title, description, date, category, url } = article.data;
+
+const articleUrl = `/${category}/${article.id}/`;
+const canonical = new URL(articleUrl, site.url).toString();
+
+const related = (await getCollection('articles'))
+  .filter((a) => a.data.category === category && a.id !== article.id)
+  .sort(
+    (a, b) =>
+      (b.data.featured ? 1 : 0) - (a.data.featured ? 1 : 0) ||
+      b.data.date.getTime() - a.data.date.getTime()
+  )
+  .slice(0, 3);
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  headline: title,
+  description: description,
+  datePublished: date.toISOString(),
+  url: canonical,
+  inLanguage: 'ar',
+  author: { '@type': 'Person', name: site.name },
+  publisher: { '@type': 'Organization', name: site.name },
+};
+
+const breadcrumbJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'الرئيسية', item: site.url },
+    {
+      '@type': 'ListItem',
+      position: 2,
+      name: categoryLabel(category),
+      item: new URL(`/${category}/`, site.url).toString(),
+    },
+    { '@type': 'ListItem', position: 3, name: title, item: canonical },
+  ],
+};
+
+const dateLabel = new Intl.DateTimeFormat('ar', { dateStyle: 'long' }).format(date);
+---
+
+<Layout
+  title={title}
+  description={description}
+  path={articleUrl}
+  ogType="article"
+  jsonLd={[jsonLd, breadcrumbJsonLd]}
+>
+  <div class="container narrow">
+    <article>
+      <header class="article-header">
+        <div class="breadcrumb">
+          <a href="/">الرئيسية</a> / <a href={`/${category}/`}>{categoryLabel(category)}</a> /
+          <span class="current">{title}</span>
+        </div>
+        <h1>{title}</h1>
+        <div class="article-meta">{dateLabel}</div>
+        {description && <p class="article-description">{description}</p>}
+      </header>
+
+      {url && (
+        <a class="visit-button" href={url} target="_blank" rel="noopener noreferrer">
+          زيارة الأداة
+        </a>
+      )}
+
+      <div class="article-body">
+        <Content />
+      </div>
+
+      <div class="share-row">
+        <span class="article-meta">مشاركة:</span>
+        <button id="share-btn" class="share-btn" type="button">مشاركة</button>
+        <button id="copy-btn" class="share-btn" type="button">نسخ الرابط</button>
+        <span id="copied-msg" class="copied-msg" hidden>تم نسخ الرابط</span>
+      </div>
+    </article>
+
+    {
+      related.length >= 1 && (
+        <section aria-label="مقالات ذات صلة" style="margin-top: 3rem">
+          <h2 class="section-title">مقالات ذات صلة</h2>
+          <div class="article-list">
+            {
+              related.map((a) => (
+                <ArticleCard
+                  title={a.data.title}
+                  description={a.data.description}
+                  date={a.data.date}
+                  category={a.data.category}
+                  href={`/${a.data.category}/${a.id}/`}
+                />
+              ))
+            }
+          </div>
+        </section>
+      )
+    }
+  </div>
+</Layout>
+
+<script is:inline>
+  (function () {
+    function copyLink() {
+      var msg = document.getElementById('copied-msg');
+      navigator.clipboard
+        .writeText(window.location.href)
+        .then(function () {
+          if (msg) {
+            msg.hidden = false;
+            setTimeout(function () {
+              msg.hidden = true;
+            }, 2000);
+          }
+        })
+        .catch(function () {});
+    }
+
+    var shareBtn = document.getElementById('share-btn');
+    if (shareBtn) {
+      shareBtn.addEventListener('click', function () {
+        if (navigator.share) {
+          navigator
+            .share({ title: document.title, url: window.location.href })
+            .catch(function () {});
+        } else {
+          copyLink();
+        }
+      });
+    }
+
+    var copyBtn = document.getElementById('copy-btn');
+    if (copyBtn) {
+      copyBtn.addEventListener('click', copyLink);
+    }
+  })();
+</script>

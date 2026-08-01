@@ -1,0 +1,76 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../layouts/Layout.astro';
+import CategoryCard from '../components/CategoryCard.astro';
+import ArticleCard from '../components/ArticleCard.astro';
+import { categories } from '../data/categories';
+import { site } from '../data/site';
+
+const allArticles = (await getCollection('articles')).sort(
+  (a, b) => b.data.date.getTime() - a.data.date.getTime()
+);
+
+const featured = allArticles.filter((a) => a.data.featured).slice(0, 6);
+
+const present = new Set(allArticles.map((a) => a.data.category));
+const known = categories.filter((c) => present.has(c.slug));
+const extras = [...present].filter((s) => !categories.some((c) => c.slug === s)).sort();
+const gridCategories = [...known, ...extras.map((slug) => ({ slug, label: slug }))];
+
+const countFor = (slug: string) => allArticles.filter((a) => a.data.category === slug).length;
+
+const orgJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: site.name,
+  url: site.url,
+};
+
+const webJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: site.name,
+  url: site.url,
+};
+---
+
+<Layout
+  title={site.name}
+  description={site.description}
+  path="/"
+  jsonLd={[orgJsonLd, webJsonLd]}
+>
+  <div class="container">
+    <section aria-label="التصنيفات">
+      <h1 class="section-title">التصنيفات</h1>
+      <div class="category-grid">
+        {
+          gridCategories.map((c) => (
+            <CategoryCard label={c.label} count={countFor(c.slug)} href={`/${c.slug}/`} />
+          ))
+        }
+      </div>
+    </section>
+
+    {
+      featured.length > 0 && (
+        <section aria-label="مميزة" style="margin-top: 3rem">
+          <h2 class="section-title">مميزة</h2>
+          <div class="article-list recommended">
+            {
+              featured.map((a) => (
+                <ArticleCard
+                  title={a.data.title}
+                  description={a.data.description}
+                  date={a.data.date}
+                  category={a.data.category}
+                  href={`/${a.data.category}/${a.id}/`}
+                />
+              ))
+            }
+          </div>
+        </section>
+      )
+    }
+  </div>
+</Layout>

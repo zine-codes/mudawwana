@@ -1,0 +1,16 @@
+---
+import { pluralize } from '../lib/i18n';
+
+interface Props {
+  label: string;
+  count: number;
+  href: string;
+}
+
+const { label, count, href } = Astro.props;
+---
+
+<a class="category-card" href={href}>
+  <h3>{label}</h3>
+  <p>{pluralize(count)}</p>
+</a>

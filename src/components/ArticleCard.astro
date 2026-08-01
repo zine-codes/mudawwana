@@ -1,0 +1,23 @@
+---
+import { categoryLabel } from '../data/categories';
+
+interface Props {
+  title: string;
+  description?: string;
+  date: Date;
+  category: string;
+  href: string;
+  /** مستوى العنوان: h3 (افتراضي) تحت عناوين h2، أو h2 مباشرة تحت h1 */
+  headingLevel?: 'h2' | 'h3';
+}
+
+const { title, description, date, category, href, headingLevel = 'h3' } = Astro.props;
+const dateLabel = new Intl.DateTimeFormat('ar', { dateStyle: 'long' }).format(date);
+---
+
+<a class="article-card" href={href}>
+  <span class="badge">{categoryLabel(category)}</span>
+  {headingLevel === 'h2' ? <h2>{title}</h2> : <h3>{title}</h3>}
+  {description && <p>{description}</p>}
+  <div class="article-meta">{dateLabel}</div>
+</a>

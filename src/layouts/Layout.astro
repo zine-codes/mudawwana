@@ -1,0 +1,272 @@
+---
+import { getCollection } from 'astro:content';
+import { site } from '../data/site';
+import { categories } from '../data/categories';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+  /** المسار من الرابط الكامل، مثال: '/' أو '/tools/example' */
+  path?: string;
+  ogType?: 'website' | 'article';
+  /** بيانات منسّقة JSON-LD (اختياري، يمكن تمرير كائن أو مصفوفة) */
+  jsonLd?: object | object[];
+  /** منع فهرسة الصفحة في محركات البحث (مثل صفحة 404) */
+  noindex?: boolean;
+}
+
+const { title, description = site.description, path = '/', ogType = 'website', jsonLd, noindex } = Astro.props;
+
+const canonical = new URL(path, site.url).toString();
+const pageTitle = path === '/' ? site.name : `${title} | ${site.name}`;
+
+/* كل التصنيفات التي تحتوي مقالات فعلًا (المعرّفة في الإعداد + أي تصنيف جديد من المقالات) */
+const allArticles = await getCollection('articles');
+const present = new Set(allArticles.map((a) => a.data.category));
+const known = categories.filter((c) => present.has(c.slug));
+const extras = [...present].filter((s) => !categories.some((c) => c.slug === s)).sort();
+const navCategories = [...known, ...extras.map((slug) => ({ slug, label: slug }))];
+
+const currentCategory = navCategories.find((c) => path.startsWith(`/${c.slug}`));
+const dropdownLabel = currentCategory?.label ?? 'التصنيفات';
+
+const jsonLdList = Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : [];
+---
+
+<!doctype html>
+<html lang="ar" dir="rtl" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" id="theme-color-meta" content="#fbfbfa" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content={site.name} />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/icon-192.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="canonical" href={canonical} />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <link rel="alternate" type="application/rss+xml" title="RSS" href="/rss.xml" />
+
+    <!-- Open Graph / تويتر -->
+    <meta property="og:type" content={ogType} />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content="ar_AR" />
+    <meta name="twitter:card" content="summary" />
+
+    <!-- الخط العربي -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    {
+      jsonLdList.map((data) => (
+        <script type="application/ld+json" is:inline set:html={JSON.stringify(data)} />
+      ))
+    }
+
+    <!-- ضبط الوضع (فاتح/داكن) قبل عرض الصفحة لمنع الوميض -->
+    <script is:inline>
+      (function () {
+        try {
+          var stored = localStorage.getItem('theme');
+          var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          var theme =
+            stored === 'light' || stored === 'dark' ? stored : prefersDark ? 'dark' : 'light';
+          document.documentElement.setAttribute('data-theme', theme);
+          var meta = document.getElementById('theme-color-meta');
+          if (meta) meta.setAttribute('content', theme === 'dark' ? '#101216' : '#fbfbfa');
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">تخطَّ إلى المحتوى</a>
+
+    <header class="site-header">
+      <div class="header-inner">
+        <nav class="main-nav" aria-label="التنقل الرئيسي">
+          <a href="/" aria-current={path === '/' ? 'page' : undefined}>الرئيسية</a>
+
+          <div class="nav-dropdown" id="categories-dropdown">
+            <button
+              id="categories-toggle"
+              class="dropdown-toggle"
+              type="button"
+              aria-haspopup="menu"
+              aria-expanded="false"
+              aria-controls="categories-menu"
+            >
+              {dropdownLabel}
+              <svg
+                class="dropdown-caret"
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            </button>
+            <ul class="dropdown-menu" id="categories-menu" role="menu" aria-label="التصنيفات">
+              {
+                navCategories.map((c) => (
+                  <li role="none">
+                    <a
+                      role="menuitem"
+                      href={`/${c.slug}/`}
+                      aria-current={path.startsWith(`/${c.slug}`) ? 'page' : undefined}
+                    >
+                      {c.label}
+                    </a>
+                  </li>
+                ))
+              }
+            </ul>
+          </div>
+
+          <button
+            id="theme-toggle"
+            class="theme-toggle"
+            type="button"
+            aria-pressed="false"
+            aria-label="التبديل إلى الوضع الليلي"
+            title="التبديل إلى الوضع الليلي"
+          >
+            <svg
+              class="icon icon-moon"
+              aria-hidden="true"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+            </svg>
+            <svg
+              class="icon icon-sun"
+              aria-hidden="true"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="12" cy="12" r="4" />
+              <line x1="12" y1="2" x2="12" y2="4" />
+              <line x1="12" y1="20" x2="12" y2="22" />
+              <line x1="4.93" y1="4.93" x2="6.34" y2="6.34" />
+              <line x1="17.66" y1="17.66" x2="19.07" y2="19.07" />
+              <line x1="2" y1="12" x2="4" y2="12" />
+              <line x1="20" y1="12" x2="22" y2="12" />
+              <line x1="4.93" y1="19.07" x2="6.34" y2="17.66" />
+              <line x1="17.66" y1="6.34" x2="19.07" y2="4.93" />
+            </svg>
+          </button>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content" tabindex="-1">
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div>
+        <span>للتواصل والاقتراحات: </span>
+        <a class="footer-email" href={`mailto:${site.email}`}>{site.email}</a>
+      </div>
+      <p style="margin: 0.75rem 0 0.5rem">© {new Date().getFullYear()} {site.name}</p>
+      <a class="footer-rss" href="/rss.xml" rel="alternate" type="application/rss+xml">
+        اشترك عبر RSS
+      </a>
+    </footer>
+
+    <!-- قائمة التصنيفات -->
+    <script is:inline>
+      (function () {
+        var wrap = document.getElementById('categories-dropdown');
+        var btn = document.getElementById('categories-toggle');
+        if (!wrap || !btn) return;
+
+        function setOpen(open) {
+          wrap.setAttribute('data-open', open ? 'true' : 'false');
+          btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        }
+
+        btn.addEventListener('click', function (e) {
+          e.stopPropagation();
+          setOpen(wrap.getAttribute('data-open') !== 'true');
+        });
+
+        document.addEventListener('click', function (e) {
+          if (!wrap.contains(e.target)) setOpen(false);
+        });
+
+        document.addEventListener('keydown', function (e) {
+          if (e.key === 'Escape') setOpen(false);
+        });
+      })();
+    </script>
+
+    <!-- زر تبديل الوضع -->
+    <script is:inline>
+      (function () {
+        var btn = document.getElementById('theme-toggle');
+        var meta = document.getElementById('theme-color-meta');
+        var html = document.documentElement;
+
+        function apply(theme) {
+          html.setAttribute('data-theme', theme);
+          if (meta) meta.setAttribute('content', theme === 'dark' ? '#101216' : '#fbfbfa');
+          if (btn) {
+            var dark = theme === 'dark';
+            btn.setAttribute('aria-pressed', dark ? 'true' : 'false');
+            var label = dark ? 'التبديل إلى الوضع النهاري' : 'التبديل إلى الوضع الليلي';
+            btn.setAttribute('aria-label', label);
+            btn.setAttribute('title', label);
+          }
+        }
+
+        apply(html.getAttribute('data-theme') || 'light');
+
+        if (btn) {
+          btn.addEventListener('click', function () {
+            var next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            apply(next);
+            try {
+              localStorage.setItem('theme', next);
+            } catch (e) {}
+          });
+        }
+      })();
+    </script>
+
+    <!-- تسجيل خدمة العمال ليعمل الموقع دون اتصال -->
+    <script is:inline>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function () {
+          navigator.serviceWorker.register('/sw.js').catch(function () {});
+        });
+      }
+    </script>
+  </body>
+</html>
