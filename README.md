@@ -1,37 +1,36 @@
-# مدونتي (placeholder)
+# مدونة — Mudawwana
 
-مدونة عربية بسيطة ومجانية 100% مبنية بـ [Astro](https://astro.build) وتُستضاف على **Cloudflare Pages**.
-هذا المشروع **قالب** — اكتب مقالاتك فقط وسيُنشر الموقع.
+A simple, free, and fully RTL Arabic blog template built with [Astro](https://astro.build) and deployed on **Cloudflare Pages**.
 
-## قبل النشر: غيّر القيم الافتراضية
+Write a Markdown file, commit it, and your post goes live in about a minute. No database, no backend, no cost. This repo is a **template** — clone it, fill in your details, and you have your own Arabic blog.
 
-| تريد تغيير | عدّل في |
-|---|---|
-| اسم الموقع | `src/data/site.ts` و`public/manifest.webmanifest` |
-| بريد التواصل | `src/data/site.ts` و`public/.well-known/security.txt` |
-| رابط الموقع | `src/data/site.ts` و`astro.config.mjs` و`public/robots.txt` و`public/.well-known/security.txt` |
-| إضافة الموقع للشاشة الرئيسية (أيقونة) | أيقونات PNG في `public/` (جرّدها من `public/icon.svg`، أو استبدلها) |
+## Why this template?
 
-## بنية المشروع
+- **100% free** — Astro + Cloudflare Pages free tier. No servers to rent.
+- **Right-to-left by default** — designed for Arabic, works out of the box.
+- **One file per post** — articles are plain Markdown in `src/content/articles/`.
+- **Auto-generated pages** — categories, post pages, home page, 404, RSS feed, sitemap, and a PWA (installable as an app, works offline).
+- **Dark mode** included.
+- **Type-safe** — every article is validated against a schema, so a typo in a post won't silently break the build.
+- **Tested** — Vitest covers categories and i18n helpers.
 
+## Quick start
+
+Requires **Node.js ≥ 22.12** (Astro 7's minimum).
+
+```bash
+npm install        # install dependencies
+npm run dev        # preview at http://localhost:4321
+npm run build      # build the site into dist/
+npm run check      # type-check and lint errors
+npm test           # run tests
 ```
-src/
-├── content/articles/        ← ملفات المقالات (اكتب مقالاتك هنا)
-├── data/
-│   ├── site.ts              ← اسم الموقع + بريد التواصل (غيّرها هنا)
-│   └── categories.ts        ← تسمية التصنيفات وترتيبها (اختياري)
-├── layouts/Layout.astro     ← الهيكل العام (ترويسة، فوتر، الوضع الليلي)
-├── components/              ← مكوّنات (بطاقة مقال، بطاقة تصنيف)
-├── pages/                   ← الصفحات (رئيسية، تصنيفات، مقال، 404، RSS)
-├── styles/global.css        ← التنسيقات
-└── content.config.ts        ← حقول المقال (العنوان، التصنيف، الرابط...)
-```
 
-## كيف تضيف مقالًا جديدًا؟
+A sample post ships at `src/content/articles/welcome.md` so the site works out of the box — delete it once you start writing.
 
-1. افتح المجلد `src/content/articles/` في مستودع GitHub.
-2. اضغط **Add file ← Create new file**.
-3. الصق هذا النموذج واملأه:
+## Write your first post
+
+Add a file like `src/content/articles/my-post.md`:
 
 ```markdown
 ---
@@ -39,52 +38,82 @@ title: "عنوان المقال"
 description: "وصف قصير يظهر في نتائج البحث."
 date: 2026-08-01
 category: tools
-url: "https://رابط-الأداة.com"
+url: "https://example.com"
 featured: true
 ---
 
 اكتب محتوى المقال هنا...
 ```
 
-الحقول:
-- `title` (إلزامي): عنوان المقال.
-- `description` (اختياري): وصف قصير يظهر في نتائج البحث وعند المشاركة.
-- `date` (إلزامي): تاريخ النشر بصيغة `YYYY-MM-DD`.
-- `category` (إلزامي): التصنيف — أي كلمة تريدها. أي تصنيف جديد يظهر تلقائيًا كتصنيف.
-- `url` (اختياري): رابط الأداة — إن وُجد يظهر زر «زيارة الأداة».
-- `featured` (اختياري): ضع `true` لظهور المقال في قسم «مميزة» بالرئيسية.
+Frontmatter fields:
 
-4. اضغط **Commit changes** (الزر الأخضر). سيُنشر الموقع تلقائيًا خلال دقيقة أو دقيقتين.
+| Field         | Required | Notes |
+|---------------|----------|-------|
+| `title`       | Yes      | Post title |
+| `description` | No       | Short summary for search results & sharing |
+| `date`        | Yes      | `YYYY-MM-DD` |
+| `category`    | Yes      | Any word — new categories appear automatically |
+| `url`         | No       | Shows a "Visit" button when set |
+| `featured`    | No       | `true` pins the post to the featured section |
 
-التعديل: اضغط أيقونة القلم في الملف ثم عدّل ثم Commit.
-الحذف: اضغط أيقونة سلة المهملات ثم Commit.
+## Project structure
 
-## تعديلات سريعة
+```
+src/
+├── content/articles/   ← your Markdown posts live here
+├── data/
+│   ├── site.ts         ← site name, URL, email (edit before deploying)
+│   └── categories.ts   ← optional category labels & ordering
+├── layouts/Layout.astro
+├── components/         ← article card, category card
+├── pages/              ← home, categories, post, 404, RSS
+├── styles/global.css
+└── content.config.ts   ← article schema
+```
 
-| تريد تغيير | عدّل في |
-|---|---|
-| التصنيفات / تسميتها / ترتيبها | `src/data/categories.ts` |
-| إضافة الموقع للشاشة الرئيسية (أيقونة) | أيقونات PNG في `public/` (جرّدها من `public/icon.svg`، أو استبدلها) |
+## Before you deploy
 
-## النشر على Cloudflare Pages (خطة مجانية)
+| What | Where |
+|------|-------|
+| Site name | `src/data/site.ts` and `public/manifest.webmanifest` |
+| Contact email | `src/data/site.ts` and `public/.well-known/security.txt` |
+| Site URL | `src/data/site.ts`, `astro.config.mjs`, `public/robots.txt`, `public/.well-known/security.txt` |
+| App icons | PNGs in `public/` (regenerate from `public/icon.svg`) |
 
-1. أنشئ حسابًا مجانيًا في https://github.com و https://dash.cloudflare.com
-2. أنشئ مستودعًا جديدًا في GitHub (اسمه مثلًا `blog`)، وارفع هذا المشروع إليه.
-3. في Cloudflare: القائمة ← **Workers & Pages ← Create ← Pages ← Connect to Git**.
-4. اختر المستودع، ثم اضبط:
+## Deploy on Cloudflare Pages (free)
+
+1. Create a new GitHub repository and push this project to it.
+2. In the [Cloudflare dashboard](https://dash.cloudflare.com): **Workers & Pages → Create → Pages → Connect to Git**.
+3. Pick the repository and set:
    - **Build command:** `npm run build`
    - **Build output directory:** `dist`
-5. اضغط **Save and Deploy**.
-6. ستحصل على رابط مثل `https://blog-xxx.pages.dev`.
+4. Click **Save and Deploy**. You'll get a `*.pages.dev` URL.
 
-> ملاحظة: رابط `sitemap` في `public/robots.txt` والمجال في `astro.config.mjs` يحملان القيمة الافتراضية `placeholder.pages.dev` — غيّرهما بعد أول نشر ليطابقا رابطك الفعلي.
+> The default site URL is `placeholder.pages.dev` — update it to your real URL after the first deploy.
 
-## أوامر التطوير (اختيارية — لا تحتاجها للنشر)
+## Security notes
 
-```bash
-npm install        # تثبيت الاعتماديات
-npm run dev        # معاينة محلية على http://localhost:4321
-npm run check      # فحص الأنواع والأخطاء
-npm test           # تشغيل الاختبارات
-npm run build      # بناء الموقع في مجلد dist/
-```
+- The `Content-Security-Policy` in `public/_headers` uses **sha256 hashes** for the two tiny inline scripts (the theme-init script in `src/layouts/Layout.astro` and the reload script in `public/offline.html`). If you edit those scripts, the hashes no longer match and the scripts get blocked — regenerate them by building and hashing the output:
+
+  ```bash
+  npm run build && node -e '
+  const fs = require("fs"), crypto = require("crypto");
+  for (const file of ["dist/index.html", "dist/offline.html"]) {
+    for (const m of fs.readFileSync(file, "utf8").matchAll(/<script>([\s\S]*?)<\/script>/g)) {
+      console.log(file, "sha256-" + crypto.createHash("sha256").update(m[1]).digest("base64"));
+    }
+  }'
+  ```
+
+- All other scripts are bundled by Astro into `/_astro/*.js` and load same-origin, so `script-src 'self'` covers them.
+
+## Tech stack
+
+- [Astro](https://astro.build) — content-first static site framework
+- [Cloudflare Pages](https://pages.cloudflare.com) — global free hosting
+- [@astrojs/rss](https://github.com/withastro/astro) + [@astrojs/sitemap](https://github.com/withastro/astro) — feeds & SEO
+- PWA features (manifest, service worker, offline page)
+
+## License
+
+MIT — use it, fork it, make it yours.

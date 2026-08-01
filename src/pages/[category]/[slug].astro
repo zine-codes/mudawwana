@@ -99,7 +99,7 @@ const dateLabel = new Intl.DateTimeFormat('ar', { dateStyle: 'long' }).format(da
     {
       related.length >= 1 && (
         <section aria-label="مقالات ذات صلة" style="margin-top: 3rem">
-          <h2 class="section-title">ذات صلة فقط</h2>
+          <h2 class="section-title">مقالات ذات صلة</h2>
           <div class="article-list">
             {
               related.map((a) => (
@@ -119,7 +119,8 @@ const dateLabel = new Intl.DateTimeFormat('ar', { dateStyle: 'long' }).format(da
   </div>
 </Layout>
 
-<script is:inline>
+<script>
+  // @ts-nocheck
   (function () {
     function copyLink() {
       var msg = document.getElementById('copied-msg');

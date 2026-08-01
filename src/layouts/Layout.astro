@@ -89,11 +89,20 @@ const jsonLdList = Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : [];
     }
 
     <!-- ضبط الوضع (فاتح/داكن) قبل عرض الصفحة لمنع الوميض -->
+    <!-- ملاحظة: إذا عدّلت هذا السكربت يجب تحديث sha256 الخاص به في public/_headers -->
     <script is:inline>
       (function () {
         try {
-          var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-          var theme = prefersDark ? 'dark' : 'light';
+          var saved = null;
+          try {
+            saved = localStorage.getItem('theme');
+          } catch (e) {}
+          var theme =
+            saved === 'light' || saved === 'dark'
+              ? saved
+              : window.matchMedia('(prefers-color-scheme: dark)').matches
+                ? 'dark'
+                : 'light';
           document.documentElement.setAttribute('data-theme', theme);
           var meta = document.getElementById('theme-color-meta');
           if (meta) meta.setAttribute('content', theme === 'dark' ? '#101216' : '#fbfbfa');
@@ -179,7 +188,8 @@ const jsonLdList = Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : [];
     </footer>
 
     <!-- قائمة التصنيفات -->
-    <script is:inline>
+    <script>
+      // @ts-nocheck
       (function () {
         var wrap = document.getElementById('categories-dropdown');
         var btn = document.getElementById('categories-toggle');
@@ -240,7 +250,8 @@ const jsonLdList = Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : [];
     </script>
 
     <!-- زر تبديل الوضع -->
-    <script is:inline>
+    <script>
+      // @ts-nocheck
       (function () {
         var btn = document.getElementById('theme-toggle');
         var meta = document.getElementById('theme-color-meta');
@@ -264,6 +275,9 @@ const jsonLdList = Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : [];
         if (btn) {
           btn.addEventListener('click', function () {
             var next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            try {
+              localStorage.setItem('theme', next);
+            } catch (e) {}
             apply(next);
           });
         }
@@ -271,7 +285,7 @@ const jsonLdList = Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : [];
     </script>
 
     <!-- تسجيل خدمة العمال ليعمل الموقع دون اتصال -->
-    <script is:inline>
+    <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', function () {
           navigator.serviceWorker.register('/sw.js').catch(function () {});

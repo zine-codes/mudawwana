@@ -7,7 +7,9 @@ export interface Category {
   label: string;
 }
 
-export const categories: readonly Category[] = [];
+export const categories: readonly Category[] = [
+  { slug: 'articles', label: 'مقالات' },
+];
 
 export function categoryLabel(slug: string): string {
   return categories.find((c) => c.slug === slug)?.label ?? slug;

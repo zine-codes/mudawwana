@@ -77,5 +77,26 @@ const webJsonLd = {
         </section>
       )
     }
+
+    {
+      allArticles.length > 0 && (
+        <section aria-label="آخر المقالات" style="margin-top: 3rem">
+          <h2 class="section-title">آخر المقالات</h2>
+          <div class="article-list">
+            {
+              allArticles.slice(0, 8).map((a) => (
+                <ArticleCard
+                  title={a.data.title}
+                  description={a.data.description}
+                  date={a.data.date}
+                  category={a.data.category}
+                  href={`/${a.data.category}/${a.id}/`}
+                />
+              ))
+            }
+          </div>
+        </section>
+      )
+    }
   </div>
 </Layout>
