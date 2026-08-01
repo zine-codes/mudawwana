@@ -22,6 +22,7 @@ const canonical = new URL(articleUrl, site.url).toString();
 
 const related = (await getCollection('articles'))
   .filter((a) => a.data.category === category && a.id !== article.id)
+  // المميّز أولًا ثم الأحدث
   .sort(
     (a, b) =>
       (b.data.featured ? 1 : 0) - (a.data.featured ? 1 : 0) ||
@@ -91,7 +92,6 @@ const dateLabel = new Intl.DateTimeFormat('ar', { dateStyle: 'long' }).format(da
       <div class="share-row">
         <span class="article-meta">مشاركة:</span>
         <button id="share-btn" class="share-btn" type="button">مشاركة</button>
-        <button id="copy-btn" class="share-btn" type="button">نسخ الرابط</button>
         <span id="copied-msg" class="copied-msg" hidden>تم نسخ الرابط</span>
       </div>
     </article>
@@ -99,7 +99,7 @@ const dateLabel = new Intl.DateTimeFormat('ar', { dateStyle: 'long' }).format(da
     {
       related.length >= 1 && (
         <section aria-label="مقالات ذات صلة" style="margin-top: 3rem">
-          <h2 class="section-title">مقالات ذات صلة</h2>
+          <h2 class="section-title">ذات صلة فقط</h2>
           <div class="article-list">
             {
               related.map((a) => (
@@ -147,11 +147,6 @@ const dateLabel = new Intl.DateTimeFormat('ar', { dateStyle: 'long' }).format(da
           copyLink();
         }
       });
-    }
-
-    var copyBtn = document.getElementById('copy-btn');
-    if (copyBtn) {
-      copyBtn.addEventListener('click', copyLink);
     }
   })();
 </script>

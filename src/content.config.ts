@@ -1,4 +1,5 @@
-import { defineCollection, z } from 'astro:content';
+import { defineCollection } from 'astro:content';
+import { z } from 'astro/zod';
 import { glob } from 'astro/loaders';
 
 const articles = defineCollection({
@@ -13,7 +14,7 @@ const articles = defineCollection({
     // التصنيف: اكتب أي كلمة وتظهر كتصنيف (مثال: tools، quotes، articles)
     category: z.string(),
     // رابط الأداة (اختياري): إن وُجد يظهر زر «زيارة الأداة»
-    url: z.string().url().optional(),
+    url: z.url().optional(),
     // مميّز (اختياري): true = يظهر في قسم «مميزة» في الرئيسية
     featured: z.boolean().optional().default(false),
   }),

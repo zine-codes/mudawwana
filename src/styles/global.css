@@ -236,35 +236,18 @@ iframe {
   background: var(--bg-soft);
   color: var(--fg);
   border-radius: 999px;
-  min-width: 44px;
+  padding: 0.35rem 0.9rem;
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
   min-height: 44px;
   cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.15s ease, border-color 0.15s ease;
+  transition: border-color 0.15s ease, color 0.15s ease;
 }
 
 .theme-toggle:hover {
-  transform: rotate(20deg);
   border-color: var(--accent);
-}
-
-.theme-toggle .icon {
-  width: 1.1rem;
-  height: 1.1rem;
-}
-
-.theme-toggle .icon-sun {
-  display: none;
-}
-
-[data-theme='dark'] .theme-toggle .icon-sun {
-  display: block;
-}
-
-[data-theme='dark'] .theme-toggle .icon-moon {
-  display: none;
+  color: var(--accent);
 }
 
 /* ===== الحاوية ===== */
@@ -289,6 +272,23 @@ iframe {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1rem;
+}
+
+.empty-state {
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 2rem 1.5rem;
+  text-align: center;
+  color: var(--fg-soft);
+}
+
+.empty-state code {
+  background: var(--bg-soft);
+  padding: 0.1rem 0.4rem;
+  border-radius: 6px;
+  font-size: 0.9em;
+  direction: ltr;
+  unicode-bidi: embed;
 }
 
 .category-card {

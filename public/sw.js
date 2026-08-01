@@ -1,5 +1,5 @@
 /* وضع عدم الاتصال: يخدّم نسخًا محفوظة من الموقع عند قطع الإنترنت */
-const CACHE = 'zine-v3';
+const CACHE = 'site-v1';
 const PRECACHE = [
   '/',
   '/offline.html',

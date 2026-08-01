@@ -1,7 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import { site } from '../data/site';
-import { categories } from '../data/categories';
+import { activeCategories } from '../data/categories';
 import '../styles/global.css';
 
 interface Props {
@@ -14,19 +14,27 @@ interface Props {
   jsonLd?: object | object[];
   /** منع فهرسة الصفحة في محركات البحث (مثل صفحة 404) */
   noindex?: boolean;
+  /** رابط صورة المشاركة (اختياري، الافتراضي أيقونة الموقع) */
+  image?: string;
 }
 
-const { title, description = site.description, path = '/', ogType = 'website', jsonLd, noindex } = Astro.props;
+const {
+  title,
+  description = site.description,
+  path = '/',
+  ogType = 'website',
+  jsonLd,
+  noindex,
+  image,
+} = Astro.props;
 
 const canonical = new URL(path, site.url).toString();
 const pageTitle = path === '/' ? site.name : `${title} | ${site.name}`;
+const ogImage = image ? new URL(image, site.url).toString() : `${site.url}/icon-512.png`;
 
 /* كل التصنيفات التي تحتوي مقالات فعلًا (المعرّفة في الإعداد + أي تصنيف جديد من المقالات) */
 const allArticles = await getCollection('articles');
-const present = new Set(allArticles.map((a) => a.data.category));
-const known = categories.filter((c) => present.has(c.slug));
-const extras = [...present].filter((s) => !categories.some((c) => c.slug === s)).sort();
-const navCategories = [...known, ...extras.map((slug) => ({ slug, label: slug }))];
+const navCategories = activeCategories(allArticles);
 
 const currentCategory = navCategories.find((c) => path.startsWith(`/${c.slug}`));
 const dropdownLabel = currentCategory?.label ?? 'التصنيفات';
@@ -62,6 +70,9 @@ const jsonLdList = Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : [];
     <meta property="og:url" content={canonical} />
     <meta property="og:locale" content="ar_AR" />
     <meta name="twitter:card" content="summary" />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:alt" content={site.name} />
+    <meta name="twitter:image" content={ogImage} />
 
     <!-- الخط العربي -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -81,10 +92,8 @@ const jsonLdList = Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : [];
     <script is:inline>
       (function () {
         try {
-          var stored = localStorage.getItem('theme');
           var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-          var theme =
-            stored === 'light' || stored === 'dark' ? stored : prefersDark ? 'dark' : 'light';
+          var theme = prefersDark ? 'dark' : 'light';
           document.documentElement.setAttribute('data-theme', theme);
           var meta = document.getElementById('theme-color-meta');
           if (meta) meta.setAttribute('content', theme === 'dark' ? '#101216' : '#fbfbfa');
@@ -148,38 +157,7 @@ const jsonLdList = Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : [];
             aria-label="التبديل إلى الوضع الليلي"
             title="التبديل إلى الوضع الليلي"
           >
-            <svg
-              class="icon icon-moon"
-              aria-hidden="true"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-            </svg>
-            <svg
-              class="icon icon-sun"
-              aria-hidden="true"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <circle cx="12" cy="12" r="4" />
-              <line x1="12" y1="2" x2="12" y2="4" />
-              <line x1="12" y1="20" x2="12" y2="22" />
-              <line x1="4.93" y1="4.93" x2="6.34" y2="6.34" />
-              <line x1="17.66" y1="17.66" x2="19.07" y2="19.07" />
-              <line x1="2" y1="12" x2="4" y2="12" />
-              <line x1="20" y1="12" x2="22" y2="12" />
-              <line x1="4.93" y1="19.07" x2="6.34" y2="17.66" />
-              <line x1="17.66" y1="6.34" x2="19.07" y2="4.93" />
-            </svg>
+            ليلي
           </button>
         </nav>
       </div>
@@ -205,7 +183,10 @@ const jsonLdList = Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : [];
       (function () {
         var wrap = document.getElementById('categories-dropdown');
         var btn = document.getElementById('categories-toggle');
-        if (!wrap || !btn) return;
+        var menu = document.getElementById('categories-menu');
+        if (!wrap || !btn || !menu) return;
+
+        var items = Array.prototype.slice.call(menu.querySelectorAll('a[role="menuitem"]'));
 
         function setOpen(open) {
           wrap.setAttribute('data-open', open ? 'true' : 'false');
@@ -214,7 +195,10 @@ const jsonLdList = Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : [];
 
         btn.addEventListener('click', function (e) {
           e.stopPropagation();
-          setOpen(wrap.getAttribute('data-open') !== 'true');
+          var open = wrap.getAttribute('data-open') !== 'true';
+          setOpen(open);
+          if (open && items.length) items[0].focus();
+          else btn.focus();
         });
 
         document.addEventListener('click', function (e) {
@@ -222,7 +206,35 @@ const jsonLdList = Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : [];
         });
 
         document.addEventListener('keydown', function (e) {
-          if (e.key === 'Escape') setOpen(false);
+          if (e.key === 'Escape') {
+            if (wrap.getAttribute('data-open') === 'true') {
+              setOpen(false);
+              btn.focus();
+            }
+            return;
+          }
+          if (wrap.getAttribute('data-open') !== 'true') return;
+          if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp' && e.key !== 'Home' && e.key !== 'End') return;
+          var idx = items.indexOf(document.activeElement);
+          if (idx === -1) idx = e.key === 'ArrowUp' ? items.length : -1;
+          if (e.key === 'ArrowDown') idx = (idx + 1) % items.length;
+          else if (e.key === 'ArrowUp') idx = (idx - 1 + items.length) % items.length;
+          else if (e.key === 'Home') idx = 0;
+          else if (e.key === 'End') idx = items.length - 1;
+          e.preventDefault();
+          if (items[idx]) items[idx].focus();
+        });
+
+        menu.addEventListener('keydown', function (e) {
+          var target = e.target;
+          if (target && target.tagName === 'A' && e.key === ' ') {
+            e.preventDefault();
+            target.click();
+          }
+        });
+
+        menu.addEventListener('click', function (e) {
+          if (e.target && e.target.closest && e.target.closest('a')) setOpen(false);
         });
       })();
     </script>
@@ -239,6 +251,7 @@ const jsonLdList = Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : [];
           if (meta) meta.setAttribute('content', theme === 'dark' ? '#101216' : '#fbfbfa');
           if (btn) {
             var dark = theme === 'dark';
+            btn.textContent = dark ? 'نهاري' : 'ليلي';
             btn.setAttribute('aria-pressed', dark ? 'true' : 'false');
             var label = dark ? 'التبديل إلى الوضع النهاري' : 'التبديل إلى الوضع الليلي';
             btn.setAttribute('aria-label', label);
@@ -252,9 +265,6 @@ const jsonLdList = Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : [];
           btn.addEventListener('click', function () {
             var next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
             apply(next);
-            try {
-              localStorage.setItem('theme', next);
-            } catch (e) {}
           });
         }
       })();

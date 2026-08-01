@@ -1,6 +1,16 @@
 # مدونتي (placeholder)
 
 مدونة عربية بسيطة ومجانية 100% مبنية بـ [Astro](https://astro.build) وتُستضاف على **Cloudflare Pages**.
+هذا المشروع **قالب** — اكتب مقالاتك فقط وسيُنشر الموقع.
+
+## قبل النشر: غيّر القيم الافتراضية
+
+| تريد تغيير | عدّل في |
+|---|---|
+| اسم الموقع | `src/data/site.ts` و`public/manifest.webmanifest` |
+| بريد التواصل | `src/data/site.ts` و`public/.well-known/security.txt` |
+| رابط الموقع | `src/data/site.ts` و`astro.config.mjs` و`public/robots.txt` و`public/.well-known/security.txt` |
+| إضافة الموقع للشاشة الرئيسية (أيقونة) | أيقونات PNG في `public/` (جرّدها من `public/icon.svg`، أو استبدلها) |
 
 ## بنية المشروع
 
@@ -9,7 +19,7 @@ src/
 ├── content/articles/        ← ملفات المقالات (اكتب مقالاتك هنا)
 ├── data/
 │   ├── site.ts              ← اسم الموقع + بريد التواصل (غيّرها هنا)
-│   └── categories.ts        ← التصنيفات وترتيبها وتسميتها العربية
+│   └── categories.ts        ← تسمية التصنيفات وترتيبها (اختياري)
 ├── layouts/Layout.astro     ← الهيكل العام (ترويسة، فوتر، الوضع الليلي)
 ├── components/              ← مكوّنات (بطاقة مقال، بطاقة تصنيف)
 ├── pages/                   ← الصفحات (رئيسية، تصنيفات، مقال، 404، RSS)
@@ -40,7 +50,7 @@ featured: true
 - `title` (إلزامي): عنوان المقال.
 - `description` (اختياري): وصف قصير يظهر في نتائج البحث وعند المشاركة.
 - `date` (إلزامي): تاريخ النشر بصيغة `YYYY-MM-DD`.
-- `category` (إلزامي): التصنيف — `tools` أو `quotes` أو `articles`، أو أي كلمة جديدة تريدها.
+- `category` (إلزامي): التصنيف — أي كلمة تريدها. أي تصنيف جديد يظهر تلقائيًا كتصنيف.
 - `url` (اختياري): رابط الأداة — إن وُجد يظهر زر «زيارة الأداة».
 - `featured` (اختياري): ضع `true` لظهور المقال في قسم «مميزة» بالرئيسية.
 
@@ -53,8 +63,6 @@ featured: true
 
 | تريد تغيير | عدّل في |
 |---|---|
-| اسم الموقع | `src/data/site.ts` و`public/manifest.webmanifest` و`apple-mobile-web-app-title` في `src/layouts/Layout.astro` |
-| بريد التواصل | `src/data/site.ts` |
 | التصنيفات / تسميتها / ترتيبها | `src/data/categories.ts` |
 | إضافة الموقع للشاشة الرئيسية (أيقونة) | أيقونات PNG في `public/` (جرّدها من `public/icon.svg`، أو استبدلها) |
 
@@ -76,5 +84,7 @@ featured: true
 ```bash
 npm install        # تثبيت الاعتماديات
 npm run dev        # معاينة محلية على http://localhost:4321
+npm run check      # فحص الأنواع والأخطاء
+npm test           # تشغيل الاختبارات
 npm run build      # بناء الموقع في مجلد dist/
 ```

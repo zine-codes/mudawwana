@@ -3,7 +3,7 @@ import { getCollection } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
 import CategoryCard from '../components/CategoryCard.astro';
 import ArticleCard from '../components/ArticleCard.astro';
-import { categories } from '../data/categories';
+import { activeCategories } from '../data/categories';
 import { site } from '../data/site';
 
 const allArticles = (await getCollection('articles')).sort(
@@ -12,10 +12,7 @@ const allArticles = (await getCollection('articles')).sort(
 
 const featured = allArticles.filter((a) => a.data.featured).slice(0, 6);
 
-const present = new Set(allArticles.map((a) => a.data.category));
-const known = categories.filter((c) => present.has(c.slug));
-const extras = [...present].filter((s) => !categories.some((c) => c.slug === s)).sort();
-const gridCategories = [...known, ...extras.map((slug) => ({ slug, label: slug }))];
+const gridCategories = activeCategories(allArticles);
 
 const countFor = (slug: string) => allArticles.filter((a) => a.data.category === slug).length;
 
@@ -43,13 +40,21 @@ const webJsonLd = {
   <div class="container">
     <section aria-label="التصنيفات">
       <h1 class="section-title">التصنيفات</h1>
-      <div class="category-grid">
-        {
-          gridCategories.map((c) => (
-            <CategoryCard label={c.label} count={countFor(c.slug)} href={`/${c.slug}/`} />
-          ))
-        }
-      </div>
+      {
+        gridCategories.length > 0 ? (
+          <div class="category-grid">
+            {
+              gridCategories.map((c) => (
+                <CategoryCard label={c.label} count={countFor(c.slug)} href={`/${c.slug}/`} />
+              ))
+            }
+          </div>
+        ) : (
+          <div class="empty-state">
+            <p>لا توجد مقالات بعد. أضِف أول مقال في <code>src/content/articles/</code> وسيظهر هنا تلقائيًا.</p>
+          </div>
+        )
+      }
     </section>
 
     {
