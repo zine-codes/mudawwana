@@ -113,7 +113,3 @@ src/
 - [Cloudflare Pages](https://pages.cloudflare.com) — global free hosting
 - [@astrojs/rss](https://github.com/withastro/astro) + [@astrojs/sitemap](https://github.com/withastro/astro) — feeds & SEO
 - PWA features (manifest, service worker, offline page)
-
-## License
-
-MIT — use it, fork it, make it yours.
