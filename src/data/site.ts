@@ -3,8 +3,8 @@ export const site = {
   // اسم الموقع (يظهر في العنوان والترويسة والفوتر)
   name: 'مدونتي',
   // رابط الموقع بعد النشر (غيّره ليطابق رابطك الفعلي)
-  url: 'https://placeholder.pages.dev',
+  url: 'https://mudawwana.pages.dev',
   // بريد التواصل (غيّره لبريدك الفعلي)
-  email: 'placeholder@example.com',
+  email: 'send.zine@gmail.com',
   description: 'مدونة شخصية: مقالات حول كل شيء',
 };

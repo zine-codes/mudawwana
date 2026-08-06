@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://placeholder.pages.dev/sitemap-index.xml
+Sitemap: https://mudawwana.pages.dev/sitemap-index.xml

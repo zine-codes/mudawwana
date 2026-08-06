@@ -57,7 +57,7 @@ const breadcrumbJsonLd = {
   ],
 };
 
-const dateLabel = new Intl.DateTimeFormat('ar', { dateStyle: 'long' }).format(date);
+const dateLabel = new Intl.DateTimeFormat('ar', { dateStyle: 'long', timeZone: 'UTC' }).format(date);
 ---
 
 <Layout

@@ -26,7 +26,7 @@ npm run check      # type-check and lint errors
 npm test           # run tests
 ```
 
-A sample post ships at `src/content/articles/welcome.md` so the site works out of the box — delete it once you start writing.
+A sample post ships at `src/content/articles/first.md` so the site works out of the box — delete it once you start writing.
 
 ## Write your first post
 

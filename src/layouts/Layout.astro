@@ -36,7 +36,7 @@ const ogImage = image ? new URL(image, site.url).toString() : `${site.url}/icon-
 const allArticles = await getCollection('articles');
 const navCategories = activeCategories(allArticles);
 
-const currentCategory = navCategories.find((c) => path.startsWith(`/${c.slug}`));
+const currentCategory = navCategories.find((c) => c.slug === path.split('/').filter(Boolean)[0]);
 const dropdownLabel = currentCategory?.label ?? 'التصنيفات';
 
 const jsonLdList = Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : [];
@@ -148,7 +148,7 @@ const jsonLdList = Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : [];
                     <a
                       role="menuitem"
                       href={`/${c.slug}/`}
-                      aria-current={path.startsWith(`/${c.slug}`) ? 'page' : undefined}
+                      aria-current={c.slug === path.split('/').filter(Boolean)[0] ? 'page' : undefined}
                     >
                       {c.label}
                     </a>
@@ -184,6 +184,7 @@ const jsonLdList = Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : [];
       <a class="footer-rss" href="/rss.xml" rel="alternate" type="application/rss+xml">
         اشترك عبر RSS
       </a>
+      <a class="footer-rss" href="https://zinedev.pages.dev">مشاريعي الأخرى</a>
     </footer>
 
     <!-- قائمة التصنيفات -->
