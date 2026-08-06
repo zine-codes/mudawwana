@@ -1,10 +1,19 @@
 # مدونة — Mudawwana
 
-A simple, free, and fully RTL Arabic blog template built with [Astro](https://astro.build) and deployed on **Cloudflare Pages**.
+> **مدونتي بالعربية** — My Arabic blog, built with Astro.
 
-Write a Markdown file, commit it, and your post goes live in about a minute. No database, no backend, no cost. This repo is a **template** — clone it, fill in your details, and you have your own Arabic blog.
+A simple, free, and fully **RTL Arabic blog** built with [Astro](https://astro.build)
+and deployed on **Cloudflare Pages**. Write a Markdown file, push it, and the post
+goes live in about a minute. No database, no backend, no cost.
 
-## Why this template?
+The repo also works as a **template** — clone it, fill in your details, and you
+have your own Arabic blog.
+
+[![Live](https://img.shields.io/badge/live-mudawwana.pages.dev-blue)](https://mudawwana.pages.dev)
+![Astro](https://img.shields.io/badge/Astro-7-5f43e9)
+[![License](https://img.shields.io/badge/license-All%20rights%20reserved-blue)](#license)
+
+## Why this blog?
 
 - **100% free** — Astro + Cloudflare Pages free tier. No servers to rent.
 - **Right-to-left by default** — designed for Arabic, works out of the box.
@@ -26,7 +35,7 @@ npm run check      # type-check and lint errors
 npm test           # run tests
 ```
 
-A sample post ships at `src/content/articles/first.md` so the site works out of the box — delete it once you start writing.
+A welcome post ships at `src/content/articles/first.md` so the site works out of the box — keep it, edit it, or delete it once you start writing.
 
 ## Write your first post
 
@@ -89,7 +98,7 @@ src/
    - **Build output directory:** `dist`
 4. Click **Save and Deploy**. You'll get a `*.pages.dev` URL.
 
-> The default site URL is `placeholder.pages.dev` — update it to your real URL after the first deploy.
+> The site URL is set in `src/data/site.ts` (`https://mudawwana.pages.dev`) — update it if your domain changes.
 
 ## Security notes
 
@@ -113,3 +122,19 @@ src/
 - [Cloudflare Pages](https://pages.cloudflare.com) — global free hosting
 - [@astrojs/rss](https://github.com/withastro/astro) + [@astrojs/sitemap](https://github.com/withastro/astro) — feeds & SEO
 - PWA features (manifest, service worker, offline page)
+
+## Related projects
+
+More apps by the same author:
+
+- **مدونة (Mudawwana)** — this project: <https://mudawwana.pages.dev>
+- All other apps: <https://zinedev.pages.dev>
+
+## Contact
+
+- Email: **send.zine@gmail.com**
+
+## License
+
+**All rights reserved.** No license is granted — this repository is not open source.
+
